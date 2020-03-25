@@ -9,7 +9,7 @@ POINT_COLOR = (255, 150, 150)
 CONNECTION_COLOR = (0, 200, 255)
 
 
-class FaceTracker:
+class FaceDetector:
 	def __init__(self, predictor_path):
 		# Save up to 3 faces to freeze. Format as (crop, mask, velocity)
 		self.freeze_faces = []

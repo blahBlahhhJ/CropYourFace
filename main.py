@@ -2,36 +2,33 @@ import cv2
 import numpy as np
 import time
 
-from hand_tracker import HandTracker
-from hand_functions import detect_hands_and_draw_skeleton
-from face_functions import FaceTracker
+from hand_functions import GestureDetector
+from face_functions import FaceDetector
 
 PALM_MODEL_PATH = "./model/palm_detection_without_custom_op.tflite"
 LANDMARK_MODEL_PATH = "./model/hand_landmark.tflite"
 ANCHORS_PATH = "./model/anchors.csv"
 SHAPE_PREDICTOR_PATH = "./model/shape_predictor_68_face_landmarks.dat"
 
-face_detector = FaceTracker(
+face_detector = FaceDetector(
     predictor_path=SHAPE_PREDICTOR_PATH
 )
 
-hand_detector = HandTracker(
-    PALM_MODEL_PATH,
-    LANDMARK_MODEL_PATH,
-    ANCHORS_PATH,
-    box_shift=0.2,
-    box_enlarge=1.3
+gesture_detector = GestureDetector(
+    palm_recog_path=PALM_MODEL_PATH,
+    kp_recog_path=LANDMARK_MODEL_PATH,
+    anchor_path=ANCHORS_PATH
 )
-
 
 croppable = False
 fps = 10
-
 
 """
     Mouse call back.
     Store current face into detector.freeze_faces.
 """
+
+
 def add_freeze_face_when_clicked(event, x, y, flags, detector):
     if event == cv2.EVENT_LBUTTONDOWN and croppable:
         # cut out face from frame
@@ -64,7 +61,7 @@ if __name__ == '__main__':
         ret, frame = cap.read()
         real = frame.copy()
 
-        detect_hands_and_draw_skeleton(frame, real, hand_detector)
+        gesture_detector.detect_hands_and_draw_skeleton(frame, real)
 
         # detect outlines
         face_mouth_pairs = face_detector.face_pipeline(frame, real)
@@ -83,7 +80,7 @@ if __name__ == '__main__':
             break
 
         cv2.imshow("Crop Your Face", real)
-        fps = 1/(time.time() - t)
+        fps = 1 / (time.time() - t)
         print("fps: ", fps, end='\r')
 
     cap.release()
