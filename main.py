@@ -4,13 +4,23 @@ import dlib
 import time
 
 from hand_tracker import HandTracker
-
-face_detector = dlib.get_frontal_face_detector()
-face_predictor = dlib.shape_predictor("model/shape_predictor_68_face_landmarks.dat")
+from hand_functions import *
+from face_functions import *
 
 PALM_MODEL_PATH = "./model/palm_detection_without_custom_op.tflite"
 LANDMARK_MODEL_PATH = "./model/hand_landmark.tflite"
 ANCHORS_PATH = "./model/anchors.csv"
+
+face_detector = dlib.get_frontal_face_detector()
+face_predictor = dlib.shape_predictor("model/shape_predictor_68_face_landmarks.dat")
+hand_detector = HandTracker(
+    PALM_MODEL_PATH,
+    LANDMARK_MODEL_PATH,
+    ANCHORS_PATH,
+    box_shift=0.2,
+    box_enlarge=1.3
+)
+
 
 croppable = False
 fps = 10
@@ -61,12 +71,12 @@ def find_face_and_mouth(frame, landmarks):
     if len(history_central) > 2:
         history_central.pop(0)
 
-    # cv2.drawContours(frame, [face_outline, mouth_outline], -1, (255, 255, 255), 1)
-    #
-    # for i in range(60):
-    #     x = landmarks.part(i).x
-    #     y = landmarks.part(i).y
-    #     cv2.circle(real, (x, y), 2, (255, 255, 255), 1)
+    cv2.drawContours(frame, [face_outline, mouth_outline], -1, (255, 255, 255), 1)
+
+    for i in range(60):
+        x = landmarks.part(i).x
+        y = landmarks.part(i).y
+        cv2.circle(real, (x, y), 3, (255, 255, 255), 1)
 
     return [face_outline, mouth_outline]
 
@@ -92,6 +102,7 @@ while cap.isOpened():
     real = frame.copy()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = face_detector(gray)
+    detect_hands_and_draw_skeleton(frame, real, hand_detector)
 
     if len(faces) == 0:
         croppable = False
@@ -102,6 +113,7 @@ while cap.isOpened():
         if landmarks is not None:
             face_outline, mouth_outline = find_face_and_mouth(real, landmarks)
             mask = gen_mask(gray, face_outline)
+
 
             croppable = True
 
