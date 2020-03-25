@@ -3,8 +3,8 @@ import numpy as np
 import time
 
 from hand_tracker import HandTracker
-from hand_functions import *
-from face_functions import *
+from hand_functions import detect_hands_and_draw_skeleton
+from face_functions import FaceTracker
 
 PALM_MODEL_PATH = "./model/palm_detection_without_custom_op.tflite"
 LANDMARK_MODEL_PATH = "./model/hand_landmark.tflite"
@@ -32,7 +32,7 @@ fps = 10
     Mouse call back.
     Store current face into detector.freeze_faces.
 """
-def add_freeze_face(event, x, y, flags, detector):
+def add_freeze_face_when_clicked(event, x, y, flags, detector):
     if event == cv2.EVENT_LBUTTONDOWN and croppable:
         # cut out face from frame
         crop = np.zeros_like(frame)
@@ -49,16 +49,21 @@ def add_freeze_face(event, x, y, flags, detector):
             detector.freeze_faces.pop(0)
 
 
+def add_freeze_face_when_covered():
+    pass
+
+
 if __name__ == '__main__':
     cap = cv2.VideoCapture(0)
 
     cv2.namedWindow("Crop Your Face")
-    cv2.setMouseCallback("Crop Your Face", add_freeze_face, face_detector)
+    cv2.setMouseCallback("Crop Your Face", add_freeze_face_when_clicked, face_detector)
 
     while cap.isOpened():
         t = time.time()
         ret, frame = cap.read()
         real = frame.copy()
+
         detect_hands_and_draw_skeleton(frame, real, hand_detector)
 
         # detect outlines
@@ -79,7 +84,7 @@ if __name__ == '__main__':
 
         cv2.imshow("Crop Your Face", real)
         fps = 1/(time.time() - t)
-        # print("fps: ", fps, end='\r')
+        print("fps: ", fps, end='\r')
 
     cap.release()
     cv2.destroyAllWindows()

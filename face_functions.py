@@ -4,6 +4,11 @@ import dlib
 import time
 
 
+THICKNESS = 1
+POINT_COLOR = (255, 150, 150)
+CONNECTION_COLOR = (0, 200, 255)
+
+
 class FaceTracker:
 	def __init__(self, predictor_path):
 		# Save up to 3 faces to freeze. Format as (crop, mask, velocity)
@@ -35,15 +40,15 @@ class FaceTracker:
 			self.history_central.pop(0)
 
 		# draw outline for face and mouth
-		cv2.drawContours(frame, [face_outline, mouth_outline], -1, (255, 255, 255), 1)
-		cv2.drawContours(real, [face_outline, mouth_outline], -1, (255, 255, 255), 1)
+		cv2.drawContours(frame, [face_outline, mouth_outline], -1, CONNECTION_COLOR, THICKNESS)
+		cv2.drawContours(real, [face_outline, mouth_outline], -1, CONNECTION_COLOR, THICKNESS)
 
 		# draw points for 60 keypoints
 		for i in range(60):
 			x = landmarks.part(i).x
 			y = landmarks.part(i).y
-			cv2.circle(frame, (x, y), 2, (255, 255, 255), 1)
-			cv2.circle(real, (x, y), 2, (255, 255, 255), 1)
+			cv2.circle(frame, (x, y), THICKNESS * 2, POINT_COLOR, -1)
+			cv2.circle(real, (x, y), THICKNESS * 2, POINT_COLOR, -1)
 
 		return [face_outline, mouth_outline]
 

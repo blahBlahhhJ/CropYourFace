@@ -22,9 +22,9 @@ connections = [
 	(0, 9), (0, 13)
 ]
 
-THICKNESS = 1
-POINT_COLOR = (255, 255, 255)
-CONNECTION_COLOR = (255, 255, 255)
+THICKNESS = 2
+POINT_COLOR = (255, 150, 150)
+CONNECTION_COLOR = (0, 100, 200)
 
 
 def detect_hands_and_draw_skeleton(frame, real, detector):
@@ -33,7 +33,7 @@ def detect_hands_and_draw_skeleton(frame, real, detector):
 	if points is not None:
 		for point in points:
 			x, y = point
-			cv2.circle(real, (int(x), int(y)), THICKNESS * 3, POINT_COLOR, 1)
+			cv2.circle(real, (int(x), int(y)), THICKNESS * 3, POINT_COLOR, -1)
 		for connection in connections:
 			x0, y0 = points[connection[0]]
 			x1, y1 = points[connection[1]]
