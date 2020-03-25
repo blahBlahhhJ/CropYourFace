@@ -44,7 +44,7 @@ def add_freeze_face(event, x, y, flags, param):
             freeze_face.pop(0)
 
 
-def find_face_and_mouth(frame, landmarks):
+def find_face_and_mouth(frame, real, landmarks):
     face_outline = [(landmarks.part(i).x, landmarks.part(i).y) for i in range(17)]
     face_outline.extend([(landmarks.part(i).x, landmarks.part(i).y) for i in range(26, 16, -1)])
     face_outline = np.array(face_outline)
@@ -55,12 +55,14 @@ def find_face_and_mouth(frame, landmarks):
     if len(history_central) > 2:
         history_central.pop(0)
 
-    # cv2.drawContours(frame, [face_outline, mouth_outline], -1, (255, 255, 255), 1)
-    #
-    # for i in range(60):
-    #     x = landmarks.part(i).x
-    #     y = landmarks.part(i).y
-    #     cv2.circle(real, (x, y), 2, (255, 255, 255), 1)
+    cv2.drawContours(frame, [face_outline, mouth_outline], -1, (255, 255, 255), 1)
+    cv2.drawContours(real, [face_outline, mouth_outline], -1, (255, 255, 255), 1)
+
+    for i in range(60):
+        x = landmarks.part(i).x
+        y = landmarks.part(i).y
+        cv2.circle(frame, (x, y), 2, (255, 255, 255), 1)
+        cv2.circle(real, (x, y), 2, (255, 255, 255), 1)
 
     return [face_outline, mouth_outline]
 
@@ -94,7 +96,7 @@ while cap.isOpened():
         landmarks = predictor(gray, face)
 
         if landmarks is not None:
-            face_outline, mouth_outline = find_face_and_mouth(real, landmarks)
+            face_outline, mouth_outline = find_face_and_mouth(frame, real, landmarks)
             mask = gen_mask(gray, face_outline)
 
             croppable = True
