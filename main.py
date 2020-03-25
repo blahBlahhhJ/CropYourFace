@@ -3,8 +3,14 @@ import numpy as np
 import dlib
 import time
 
-detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("model/shape_predictor_68_face_landmarks.dat")
+from hand_tracker import HandTracker
+
+face_detector = dlib.get_frontal_face_detector()
+face_predictor = dlib.shape_predictor("model/shape_predictor_68_face_landmarks.dat")
+
+PALM_MODEL_PATH = "./model/palm_detection_without_custom_op.tflite"
+LANDMARK_MODEL_PATH = "./model/hand_landmark.tflite"
+ANCHORS_PATH = "./model/anchors.csv"
 
 croppable = False
 fps = 10
@@ -85,13 +91,13 @@ while cap.isOpened():
     ret, frame = cap.read()
     real = frame.copy()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    faces = detector(gray)
+    faces = face_detector(gray)
 
     if len(faces) == 0:
         croppable = False
 
     for face in faces:
-        landmarks = predictor(gray, face)
+        landmarks = face_predictor(gray, face)
 
         if landmarks is not None:
             face_outline, mouth_outline = find_face_and_mouth(real, landmarks)
