@@ -30,7 +30,6 @@ CONNECTION_COLOR = (255, 255, 255)
 def detect_hands_and_draw_skeleton(frame, real, detector):
 	image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 	points, _ = detector(image)
-	print(points)
 	if points is not None:
 		for point in points:
 			x, y = point
