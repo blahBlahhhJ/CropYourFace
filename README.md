@@ -39,7 +39,7 @@ And wait for your webcam to launch.
 #### Face detection
 Two models are used, both from [dlib](http://dlib.net).\
 `get_frontal_face_detector()` is a detector that gives us the bounding box of faces.\
-`shape_predictor`, applied on dlib's pretrained 68 landmarks model gives us the landmarks of detected faces.
+`shape_predictor`, applied on dlib's pretrained 68 landmarks model gives us the landmarks of detected faces.\
 Landmarks are indexed in the following order.\
 ![image](./imgs/face%20landmark.png)
 
