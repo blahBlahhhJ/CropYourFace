@@ -4,7 +4,8 @@ import numpy as np
 import tensorflow as tf
 
 """
-    This whole script is copied from metawhale's github repo "hand_tracking", with a little bit change.
+    This whole script is copied from metalwhale's github repo "hand_tracking", with a little bit change.
+    https://github.com/metalwhale/hand_tracking
 """
 
 
