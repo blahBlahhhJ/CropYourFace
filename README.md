@@ -39,7 +39,7 @@ And wait for your webcam to launch.
 #### Face detection
 Two models are used, both from [dlib](http://dlib.net).\
 `get_frontal_face_detector()` is a detector that gives us the bounding box of faces.\
-`shape_predictor`, applied on dlib's pretrained 68 landmarks model gives us the landmarks of detected faces.\
+`shape_predictor`, applied on dlib's pretrained 68 landmarks model, gives us the landmarks of detected faces.\
 Landmarks are indexed in the following order.\
 ![image](./imgs/face%20landmark.png)
 
@@ -56,6 +56,6 @@ because there's some custom operators defined in their repo,
 and I don't want to dig into it too much.
 
 However, thanks to [metalwhale's awesome repo](https://github.com/metalwhale/hand_tracking),
-who provided us a modified version of the model: `palm_detection_without_custom_op.tflite`
+which provided us a modified version of the model: `palm_detection_without_custom_op.tflite`
 so that combined with his code from `hand_tracker.py`, I was able to get the model to work.
 
