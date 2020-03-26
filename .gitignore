@@ -1,6 +1,6 @@
 .DS_Store
 .idea
-model
+model/shape_predictor_68_face_landmarks.dat
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
