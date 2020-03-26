@@ -63,7 +63,7 @@ class GestureDetector:
 				finger = fingers[i]
 				color = finger[0]
 				kp_idx = finger[1]
-				bend = self.is_bend(i, points)
+				self.is_bend(i, points)
 
 				for j in range(1, len(kp_idx) - 1):
 					i1 = kp_idx[j]
@@ -107,7 +107,14 @@ class GestureDetector:
 
 		return np.degrees(angle)
 
-
-
+	"""
+		Detect if satisfied "pointing gesture" and return pointing direction
+	"""
 	def detect_start_gesture(self, keypoints):
-		pass
+		if keypoints is not None and self.finger_bend[1:] == [False, True, True, True]:
+			# get index finger's pointing direction
+			dir = keypoints[8] - keypoints[5]
+			# normalize direction
+			dir = dir / np.linalg.norm(dir)
+			return dir
+		return None

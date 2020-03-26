@@ -21,33 +21,43 @@ gesture_detector = GestureDetector(
 )
 
 croppable = False
-fps = 10
+shootable = True
 
-"""
-    Mouse call back.
-    Store current face into detector.freeze_faces.
-"""
+# this is just for safe.
+fps = 10
 
 
 def add_freeze_face_when_clicked(event, x, y, flags, detector):
     if event == cv2.EVENT_LBUTTONDOWN and croppable:
-        # cut out face from frame
-        crop = np.zeros_like(frame)
-        crop[mask == 255] = frame[mask == 255]
+        for mask in masks:
+            # cut out face from frame
+            crop = np.zeros_like(frame)
+            crop[mask == 255] = frame[mask == 255]
 
-        # calculate velocity: (vx, vy)
-        x0, y0, t0 = detector.history_central[0]
-        x1, y1, t1 = detector.history_central[1]
-        dt = t1 - t0
-        v = ((x1 - x0) / dt, (y1 - y0) / dt)
+            # calculate velocity: (vx, vy)
+            x0, y0, t0 = detector.history_central[0]
+            x1, y1, t1 = detector.history_central[1]
+            dt = t1 - t0
+            v = ((x1 - x0) / dt, (y1 - y0) / dt)
 
-        detector.freeze_faces.append([crop, mask, v])
-        if len(detector.freeze_faces) > 3:
-            detector.freeze_faces.pop(0)
+            detector.freeze_faces.append([crop, mask, v])
+            if len(detector.freeze_faces) > 3:
+                detector.freeze_faces.pop(0)
 
 
-def add_freeze_face_when_covered():
-    pass
+def add_freeze_face_when_pointing(dir, detector):
+    if dir is not None:
+        for mask in masks:
+            # cut out face from frame
+            crop = np.zeros_like(frame)
+            crop[mask == 255] = frame[mask == 255]
+
+            # make velocity 70 * direction
+            v = dir * 70
+
+            detector.freeze_faces.append([crop, mask, v])
+            if len(detector.freeze_faces) > 3:
+                detector.freeze_faces.pop(0)
 
 
 if __name__ == '__main__':
@@ -58,20 +68,36 @@ if __name__ == '__main__':
 
     while cap.isOpened():
         t = time.time()
+        # FRAME is for extracting info, REAL is the img on stage.
         ret, frame = cap.read()
         real = frame.copy()
 
-        gesture_detector.detect_hands_and_draw_skeleton(frame, real)
+        # get pointing direction if applicable
+        keypoints = gesture_detector.detect_hands_and_draw_skeleton(frame, real)
+        direction = gesture_detector.detect_start_gesture(keypoints)
 
-        # detect outlines
+        # detect face outlines
         face_mouth_pairs = face_detector.face_pipeline(frame, real)
+
+        # if there's no face detected, then we won't crop any face
         if len(face_mouth_pairs) == 0:
             croppable = False
 
         # get masks to crop face
+        masks = []
         for face_outline, _ in face_mouth_pairs:
-            mask = face_detector.gen_mask(frame, face_outline)
+            masks.append(face_detector.gen_mask(frame, face_outline))
+            # if mask can be generated, then we are able to crop faces.
             croppable = True
+
+        # add freeze face with direction applied
+        if direction is not None and shootable and croppable:
+            # we don't want to shoot same faces for one gesture.
+            shootable = False
+            add_freeze_face_when_pointing(direction, face_detector)
+        # if gesture is different, then consider a refresh -> we can shoot again.
+        elif direction is None and not shootable:
+            shootable = True
 
         # overlay stored faces
         face_detector.overlay_face(real, 1 / fps)
